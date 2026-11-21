@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "177962788959",
+    "project_id": "voters-cdm",
+    "storage_bucket": "voters-cdm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177962788959:android:041648223e07a5d1a713ea",
+        "android_client_info": {
+          "package_name": "com.example.voter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuGH3SuKclICf987ZPJVT7HA1G2mo8UWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

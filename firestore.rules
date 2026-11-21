@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return signedIn() &&
+        (request.auth.token.role == 'administrator' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'administrator');
+    }
+    function owns(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+    match /users/{uid} {
+      allow read: if owns(uid) || isAdmin();
+      allow create: if owns(uid) &&
+        request.resource.data.uid == uid &&
+        request.resource.data.role == 'member' &&
+        request.resource.data.accountStatus == 'pending' &&
+        request.resource.data.approvalStatus == 'pending' &&
+        request.resource.data.locked == false &&
+        request.resource.data.mustChangePassword == false &&
+        request.resource.data.keys().hasOnly([
+          'uid', 'name', 'email', 'role', 'accountStatus',
+          'approvalStatus', 'mustChangePassword', 'locked',
+          'registeredAt', 'updatedAt', 'lastLoginAt'
+        ]);
+      allow update: if owns(uid) &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.accountStatus == resource.data.accountStatus &&
+        request.resource.data.approvalStatus == resource.data.approvalStatus &&
+        request.resource.data.locked == resource.data.locked &&
+        request.resource.data.mustChangePassword == resource.data.mustChangePassword &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'updatedAt', 'lastLoginAt']);
+      allow update, delete: if isAdmin();
+    }
+    match /audit/{document=**} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
